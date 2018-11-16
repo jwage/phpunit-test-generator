@@ -1,0 +1,8 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+namespace JWage\PHPUnitTestGenerator;
+
+require __DIR__ . '/generate-unit-test.php';
