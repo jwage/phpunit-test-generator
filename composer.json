@@ -33,6 +33,6 @@
         }
     },
     "bin": [
-        "bin/generate-test-class"
+        "bin/generate-unit-test"
     ]
 }
