@@ -48,11 +48,14 @@ class Psr4TestClassWriter implements TestClassWriter
     private function generatePsr4TestWritePath(GeneratedTestClass $generatedTestClass) : string
     {
         $writePath  = $this->configuration->getTestsDir();
+
         $writePath .= '/' . str_replace(
             $this->configuration->getTestsNamespace() . '\\',
             '',
-            $generatedTestClass->getTestClassName() . '.php'
-        );
+            $generatedTestClass->getTestClassName()
+        ).'.php';
+
+        $writePath = str_replace('\\', DIRECTORY_SEPARATOR, $writePath);
 
         return $writePath;
     }
