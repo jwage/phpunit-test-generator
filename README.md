@@ -8,7 +8,7 @@ other autoloading strategies and application organizational structures, pull req
 ## Install
 
 ```console
-composer require --dev jwage/phpunit-test-generator
+$ composer require --dev jwage/phpunit-test-generator
 ```
 
 ## Generate Test Class
@@ -63,7 +63,7 @@ class Dependency
 Now you can generate a test class for `MyService` with the following command:
 
 ```console
-./vendor/bin/generate-unit-test generate-test-class "App\Services\MyService"
+$ php vendor/bin/generate-unit-test generate-test-class "App\Services\MyService"
 ```
 
 A test would be generated at `tests/Services/MyServiceTest.php` that looks like this:
