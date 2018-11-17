@@ -15,6 +15,8 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use function assert;
+use function is_string;
 use function sprintf;
 
 class GenerateTestClassCommand extends Command
@@ -30,6 +32,7 @@ class GenerateTestClassCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output) : void
     {
         $className = $input->getArgument('class');
+        assert(is_string($className));
 
         if ($className === '') {
             throw new InvalidArgumentException('Specify class name to generate unit test for');
