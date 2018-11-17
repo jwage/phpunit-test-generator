@@ -7,7 +7,6 @@ namespace JWage\PHPUnitTestGenerator;
 use JWage\PHPUnitTestGenerator\Command\GenerateTestClassCommand;
 use Symfony\Component\Console\Application;
 use const PHP_EOL;
-use function extension_loaded;
 use function file_exists;
 
 (static function () : void {
@@ -28,11 +27,6 @@ use function file_exists;
     }
 
     if (! $autoloaderFound) {
-        if (extension_loaded('phar') && Phar::running() !== '') {
-            echo 'The PHAR was built without dependencies!' . PHP_EOL;
-            exit(1);
-        }
-
         echo 'vendor/autoload.php could not be found. Did you run `composer install`?', PHP_EOL;
         exit(1);
     }

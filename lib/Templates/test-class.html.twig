@@ -1,0 +1,68 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+{% for useStatement in testClassMetadata.useStatements %}
+use {{ useStatement }};
+{% endfor %}
+
+class {{ shortName }} extends TestCase
+{
+{% for property in testClassMetadata.properties if property.type == 'dependency' %}
+    /** @var {{ property.propertyType }}|MockObject */
+    private ${{ property.propertyName }};
+
+{% endfor %}
+{% for property in testClassMetadata.properties if property.type == 'normal' %}
+    /** @var {{ property.propertyType }} */
+    private ${{ property.propertyName }};
+
+{% endfor %}
+
+{% for testMethod in testClassMetadata.testMethods %}
+    public function test{{ testMethod.methodName|slice(0, 1)|upper }}{{ testMethod.methodName|slice(1) }}() : void
+    {
+{% for body in testMethod.body if body.type == 'dependency' %}
+        ${{ body.parameterName }} = $this->createMock({{ body.parameterType }}::class);
+{% endfor %}
+{% for body in testMethod.body if body.type == 'normal' %}
+        ${{ body.parameterName }} = '';
+{% endfor %}
+{% for body in testMethod.body if body.type == 'sut' %}
+{% if body.parameters|length == 0 %}
+        $this->{{ body.parameterName }}->{{ body.methodName }}();{% else %}
+        $this->{{ body.parameterName }}->{{ body.methodName }}(
+{% for parameter in body.parameters %}
+            ${{ parameter }}{% if not loop.last %},{% endif %}
+{% endfor %}
+         );
+{% endif %}
+{%endfor %}
+
+    }
+
+{% endfor %}
+    protected function setUp() : void
+    {
+{% for setUpDependency in testClassMetadata.setUpDependencies if setUpDependency.type == 'dependency' %}
+        $this->{{ setUpDependency.propertyName }} = $this->createMock({{ setUpDependency.propertyType }}::class);
+{% endfor %}
+{% for setUpDependency in testClassMetadata.setUpDependencies if setUpDependency.type == 'normal' %}
+        $this->{{ setUpDependency.propertyName }} = {{ setUpDependency.propertyValue }};
+{% endfor %}
+{% for setUpDependency in testClassMetadata.setUpDependencies if setUpDependency.type == 'sut' %}
+{% if setUpDependency.parameters|length > 0 %}
+        $this->{{ setUpDependency.propertyName }} = new {{ setUpDependency.propertyType }}(
+{% for parameter in setUpDependency.parameters %}
+            $this->{{ parameter }}{% if not loop.last %},{% endif %}
+
+{% endfor %}
+        );
+{% else %}
+        $this->{{ setUpDependency.propertyName }} = new {{ setUpDependency.propertyType }}();
+{% endif %}
+{% endfor %}
+    }
+}

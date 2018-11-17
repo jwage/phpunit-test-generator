@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace JWage\PHPUnitTestGenerator\Configuration;
 
 use RuntimeException;
+use function assert;
 use function file_exists;
 use function file_get_contents;
 use function getcwd;
+use function is_string;
 use function json_decode;
 use function key;
 use function rtrim;
@@ -96,7 +98,9 @@ class ComposerConfigurationReader
     private function getNamespaceSourcePair(array $psr) : array
     {
         $sourceNamespace = key($psr);
-        $sourceDir       = getcwd() . '/' . $psr[$sourceNamespace];
+        assert(is_string($sourceNamespace));
+
+        $sourceDir = getcwd() . '/' . $psr[$sourceNamespace];
 
         return [$sourceNamespace, $sourceDir];
     }

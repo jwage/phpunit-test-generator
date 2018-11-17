@@ -7,6 +7,7 @@ namespace JWage\PHPUnitTestGenerator\Writer;
 use JWage\PHPUnitTestGenerator\Configuration\Configuration;
 use JWage\PHPUnitTestGenerator\GeneratedTestClass;
 use RuntimeException;
+use const DIRECTORY_SEPARATOR;
 use function dirname;
 use function file_exists;
 use function file_put_contents;
@@ -47,13 +48,13 @@ class Psr4TestClassWriter implements TestClassWriter
 
     private function generatePsr4TestWritePath(GeneratedTestClass $generatedTestClass) : string
     {
-        $writePath  = $this->configuration->getTestsDir();
+        $writePath = $this->configuration->getTestsDir();
 
         $writePath .= '/' . str_replace(
             $this->configuration->getTestsNamespace() . '\\',
             '',
             $generatedTestClass->getTestClassName()
-        ).'.php';
+        ) . '.php';
 
         $writePath = str_replace('\\', DIRECTORY_SEPARATOR, $writePath);
 

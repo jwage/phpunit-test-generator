@@ -45,7 +45,7 @@ class TestClass
         return $this->testIntegerArgument;
     }
 
-    public function getTestStringArgument() : float
+    public function getTestStringArgument() : string
     {
         return $this->testStringArgument;
     }
