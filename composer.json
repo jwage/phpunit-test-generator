@@ -10,6 +10,7 @@
         }
     ],
     "require": {
+        "php": "^7.1",
         "doctrine/inflector": "2.0.x-dev",
         "twig/twig": "^2.5",
         "symfony/console": "^4.1"
