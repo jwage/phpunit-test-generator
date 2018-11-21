@@ -26,7 +26,7 @@ class Psr4TestClassWriter implements TestClassWriter
         $this->configuration = $configuration;
     }
 
-    public function write(GeneratedTestClass $generatedTestClass) : void
+    public function write(GeneratedTestClass $generatedTestClass) : string
     {
         $writePath = $this->generatePsr4TestWritePath($generatedTestClass);
 
@@ -37,13 +37,15 @@ class Psr4TestClassWriter implements TestClassWriter
         }
 
         if (file_exists($writePath)) {
-            throw new RuntimeException(sprintf('File already exists at path %s', $writePath));
+            throw new RuntimeException(sprintf('Test class already exists at %s', $writePath));
         }
 
         file_put_contents(
             $writePath,
             $generatedTestClass->getCode()
         );
+
+        return $writePath;
     }
 
     private function generatePsr4TestWritePath(GeneratedTestClass $generatedTestClass) : string

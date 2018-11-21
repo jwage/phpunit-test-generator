@@ -8,5 +8,5 @@ use JWage\PHPUnitTestGenerator\GeneratedTestClass;
 
 interface TestClassWriter
 {
-    public function write(GeneratedTestClass $generatedTestClass) : void;
+    public function write(GeneratedTestClass $generatedTestClass) : string;
 }

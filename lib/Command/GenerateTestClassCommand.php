@@ -39,12 +39,21 @@ class GenerateTestClassCommand extends Command
 
         assert(is_string($className));
 
+        $output->writeln(sprintf('Generating test class for <info>%s</info>', $className));
+        $output->writeln('');
+
         $configuration = $this->createConfiguration();
 
         $generateTestClass = $this->createTestClassGenerator($configuration);
 
-        $this->createTestClassWriter($configuration)
-            ->write($generateTestClass->generate($className));
+        $generatedTestClass = $generateTestClass->generate($className);
+
+        $output->writeln($generatedTestClass->getCode());
+
+        $writePath = $this->createTestClassWriter($configuration)
+            ->write($generatedTestClass);
+
+        $output->writeln(sprintf('Test class written to <info>%s</info>', $writePath));
     }
 
     private function createConfiguration() : Configuration

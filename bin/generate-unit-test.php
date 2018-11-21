@@ -10,10 +10,11 @@ use Symfony\Component\Console\Input\ArgvInput;
 use const PHP_EOL;
 use function array_merge;
 use function file_exists;
+use function getcwd;
 
 (static function () : void {
     $autoloadFiles = [
-        getcwd().'/vendor/autoload.php',
+        getcwd() . '/vendor/autoload.php',
         __DIR__ . '/../vendor/autoload.php',
         __DIR__ . '/../../../autoload.php',
     ];
