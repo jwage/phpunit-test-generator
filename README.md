@@ -11,6 +11,8 @@ other autoloading strategies and application organizational structures, pull req
 $ composer require --dev jwage/phpunit-test-generator
 ```
 
+You can also download the latest PHAR from the [releases](https://github.com/jwage/phpunit-test-generator/releases) page.
+
 ## Generate Test Class
 
 Take a class named `App\Services\MyService` located in `src/Services/MyService.php`:
