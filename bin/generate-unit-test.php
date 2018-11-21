@@ -8,6 +8,7 @@ use JWage\PHPUnitTestGenerator\Command\GenerateTestClassCommand;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
 use const PHP_EOL;
+use function array_merge;
 use function file_exists;
 
 (static function () : void {
