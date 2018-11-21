@@ -37,7 +37,7 @@ use function getcwd;
 
     $argv = $_SERVER['argv'];
 
-    if ($argv[1] !== 'generate-test-class') {
+    if (! isset($argv[1]) || $argv[1] !== 'generate-test-class') {
         $base = $argv[0];
         unset($argv[0]);
         $argv = array_merge([$base], ['generate-test-class'], $argv);

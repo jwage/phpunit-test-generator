@@ -66,6 +66,12 @@ Now you can generate a test class for `MyService` with the following command:
 $ php vendor/bin/generate-unit-test "App\Services\MyService"
 ```
 
+You can also pass a path to a class instead of giving the class name:
+
+```console
+$ php vendor/bin/generate-unit-test src/Services/MyService.php
+```
+
 A test would be generated at `tests/Services/MyServiceTest.php` that looks like this:
 
 ```php
