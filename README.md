@@ -111,3 +111,5 @@ class MyServiceTest extends TestCase
     }
 }
 ```
+
+Now you have a skeleton unit test and you can fill in the defails of the generated methods.
