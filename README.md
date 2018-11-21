@@ -63,7 +63,7 @@ class Dependency
 Now you can generate a test class for `MyService` with the following command:
 
 ```console
-$ php vendor/bin/generate-unit-test generate-test-class "App\Services\MyService"
+$ php vendor/bin/generate-unit-test "App\Services\MyService"
 ```
 
 A test would be generated at `tests/Services/MyServiceTest.php` that looks like this:

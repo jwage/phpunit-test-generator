@@ -26,16 +26,16 @@ class GenerateTestClassCommand extends Command
         $this
             ->setName('generate-test-class')
             ->setDescription('Generate a PHPUnit test class from a class.')
-            ->addArgument('class', InputArgument::REQUIRED, 'The class name to generate the test for.');
+            ->addArgument('class', InputArgument::OPTIONAL, 'The class name to generate the test for.')
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output) : void
     {
         $className = $input->getArgument('class');
-        assert(is_string($className));
 
-        if ($className === '') {
-            throw new InvalidArgumentException('Specify class name to generate unit test for');
+        if ($className === null) {
+            throw new InvalidArgumentException('Specify class name to generate a unit test for.');
         }
 
         $configuration = $this->createConfiguration();

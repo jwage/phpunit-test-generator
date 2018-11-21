@@ -6,6 +6,7 @@ namespace JWage\PHPUnitTestGenerator;
 
 use JWage\PHPUnitTestGenerator\Command\GenerateTestClassCommand;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Input\ArgvInput;
 use const PHP_EOL;
 use function file_exists;
 
@@ -31,7 +32,17 @@ use function file_exists;
         exit(1);
     }
 
+    $argv = $_SERVER['argv'];
+
+    if ($argv[1] !== 'generate-test-class') {
+        $base = $argv[0];
+        unset($argv[0]);
+        $argv = array_merge([$base], ['generate-test-class'], $argv);
+    }
+
+    $input = new ArgvInput($argv);
+
     $application = new Application();
     $application->add(new GenerateTestClassCommand());
-    $application->run();
+    $application->run($input);
 })();
