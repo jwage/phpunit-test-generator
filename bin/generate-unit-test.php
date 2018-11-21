@@ -13,6 +13,7 @@ use function file_exists;
 
 (static function () : void {
     $autoloadFiles = [
+        getcwd().'/vendor/autoload.php',
         __DIR__ . '/../vendor/autoload.php',
         __DIR__ . '/../../../autoload.php',
     ];
