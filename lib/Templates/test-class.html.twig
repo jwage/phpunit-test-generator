@@ -20,7 +20,6 @@ class {{ shortName }} extends TestCase
     private ${{ property.propertyName }};
 
 {% endfor %}
-
 {% for testMethod in testClassMetadata.testMethods %}
     public function test{{ testMethod.methodName|slice(0, 1)|upper }}{{ testMethod.methodName|slice(1) }}() : void
     {
@@ -36,10 +35,11 @@ class {{ shortName }} extends TestCase
         $this->{{ body.parameterName }}->{{ body.methodName }}(
 {% for parameter in body.parameters %}
             ${{ parameter }}{% if not loop.last %},{% endif %}
+
 {% endfor %}
-         );
+        );
 {% endif %}
-{%endfor %}
+{% endfor %}
 
     }
 
@@ -52,6 +52,7 @@ class {{ shortName }} extends TestCase
 {% for setUpDependency in testClassMetadata.setUpDependencies if setUpDependency.type == 'normal' %}
         $this->{{ setUpDependency.propertyName }} = {{ setUpDependency.propertyValue }};
 {% endfor %}
+
 {% for setUpDependency in testClassMetadata.setUpDependencies if setUpDependency.type == 'sut' %}
 {% if setUpDependency.parameters|length > 0 %}
         $this->{{ setUpDependency.propertyName }} = new {{ setUpDependency.propertyType }}(

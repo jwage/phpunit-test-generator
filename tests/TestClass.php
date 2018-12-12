@@ -50,6 +50,10 @@ class TestClass
         return $this->testStringArgument;
     }
 
+    public function getTestMethodWithArguments(string $a, float $b, int $c) : void
+    {
+    }
+
     public function getSomething() : string
     {
         return 'something';
