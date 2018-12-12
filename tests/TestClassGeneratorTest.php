@@ -39,7 +39,6 @@ class TestClassTest extends TestCase
     /** @var TestClass */
     private $testClass;
 
-
     public function testGetTestDependency() : void
     {
         $this->testClass->getTestDependency();
@@ -60,6 +59,19 @@ class TestClassTest extends TestCase
         $this->testClass->getTestStringArgument();
     }
 
+    public function testGetTestMethodWithArguments() : void
+    {
+        $a = '';
+        $b = '';
+        $c = '';
+        $this->testClass->getTestMethodWithArguments(
+            $a,
+            $b,
+            $c
+        );
+
+    }
+
     public function testGetSomething() : void
     {
         $this->testClass->getSomething();
@@ -71,6 +83,7 @@ class TestClassTest extends TestCase
         $this->testFloatArgument = 1.0;
         $this->testIntegerArgument = 1;
         $this->testStringArgument = '';
+
         $this->testClass = new TestClass(
             $this->testDependency,
             $this->testFloatArgument,
