@@ -17,9 +17,10 @@ use function sprintf;
 
 class ComposerConfigurationReader
 {
-    public function createConfiguration() : Configuration
+    public function createConfiguration(?string $path = null) : Configuration
     {
-        $composerJsonPath = getcwd() . '/composer.json';
+        $path             = $path ?? getcwd();
+        $composerJsonPath = $path . '/composer.json';
 
         if (! file_exists($composerJsonPath)) {
             throw new RuntimeException(

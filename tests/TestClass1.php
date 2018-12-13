@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace JWage\PHPUnitTestGenerator\Tests;
 
-class TestClass
+class TestClass1
 {
     /** @var TestDependency */
     private $testDependency;
@@ -18,16 +18,24 @@ class TestClass
     /** @var string */
     private $testStringArgument;
 
+    /** @var mixed[] */
+    private $testArrayArgument;
+
+    /**
+     * @param mixed[] $testArrayArgument
+     */
     public function __construct(
         TestDependency $testDependency,
         float $testFloatArgument,
         int $testIntegerArgument,
-        string $testStringArgument
+        string $testStringArgument,
+        array $testArrayArgument
     ) {
         $this->testDependency      = $testDependency;
         $this->testFloatArgument   = $testFloatArgument;
         $this->testIntegerArgument = $testIntegerArgument;
         $this->testStringArgument  = $testStringArgument;
+        $this->testArrayArgument   = $testArrayArgument;
     }
 
     public function getTestDependency() : TestDependency
@@ -35,12 +43,17 @@ class TestClass
         return $this->testDependency;
     }
 
+    public function setTestDependency(TestDependency $testDependency) : void
+    {
+        $this->testDependency = $testDependency;
+    }
+
     public function getTestFloatArgument() : float
     {
         return $this->testFloatArgument;
     }
 
-    public function getTestIntegerArgument() : float
+    public function getTestIntegerArgument() : int
     {
         return $this->testIntegerArgument;
     }
@@ -50,6 +63,14 @@ class TestClass
         return $this->testStringArgument;
     }
 
+    /**
+     * @return mixed[]
+     */
+    public function getTestArrayArgument() : array
+    {
+        return $this->testArrayArgument;
+    }
+
     public function getTestMethodWithArguments(string $a, float $b, int $c) : void
     {
     }
@@ -57,5 +78,18 @@ class TestClass
     public function getSomething() : string
     {
         return 'something';
+    }
+
+    public function getTestBoolean() : bool
+    {
+        return true;
+    }
+
+    /**
+     * @return mixed[]
+     */
+    public function getTestArray() : array
+    {
+        return [];
     }
 }

@@ -12,13 +12,19 @@ use ReflectionMethod;
 use ReflectionParameter;
 use function array_map;
 use function array_unique;
+use function class_exists;
 use function count;
 use function sort;
+use function sprintf;
 use function substr;
-use function var_export;
+use function ucfirst;
 
 class TestClassMetadataParser
 {
+    public const DEPENDENCY = 'dependency';
+    public const NORMAL     = 'normal';
+    public const SUT        = 'sut';
+
     /** @var Inflector */
     private $inflector;
 
@@ -46,7 +52,7 @@ class TestClassMetadataParser
         return new TestClassMetadata(
             $this->generateUseStatements(),
             $this->generateClassProperties(),
-            $this->generateSetUpDependencies(),
+            $this->generateSetUpLines(),
             $this->generateTestMethods()
         );
     }
@@ -56,9 +62,9 @@ class TestClassMetadataParser
      */
     private function generateUseStatements() : array
     {
-        $dependencies   = [];
-        $dependencies[] = $this->reflectionClass->name;
-        $dependencies[] = TestCase::class;
+        $useStatements   = [];
+        $useStatements[] = $this->reflectionClass->name;
+        $useStatements[] = TestCase::class;
 
         $parameters = $this->getConstructorParameters();
 
@@ -70,7 +76,7 @@ class TestClassMetadataParser
                     continue;
                 }
 
-                $dependencies[] = $parameterClass->getName();
+                $useStatements[] = $parameterClass->getName();
             }
         }
 
@@ -86,17 +92,29 @@ class TestClassMetadataParser
                     continue;
                 }
 
-                $dependencies[] = $parameterClass->getName();
+                $useStatements[] = $parameterClass->getName();
             }
+
+            $returnType = $method->getReturnType();
+
+            if ($returnType !== null) {
+                $returnTypeName = $returnType->getName();
+
+                if (! class_exists($returnTypeName)) {
+                    continue;
+                }
+            }
+
+            $useStatements[] = $returnType;
         }
 
-        $dependencies[] = MockObject::class;
+        $useStatements[] = MockObject::class;
 
-        sort($dependencies);
+        $useStatements = array_unique($useStatements);
 
-        $dependencies = array_unique($dependencies);
+        sort($useStatements);
 
-        return $dependencies;
+        return $useStatements;
     }
 
     /**
@@ -104,7 +122,7 @@ class TestClassMetadataParser
      */
     private function generateClassProperties() : array
     {
-        $testProperties = [];
+        $classProperties = [];
 
         $parameters = $this->getConstructorParameters();
 
@@ -112,80 +130,71 @@ class TestClassMetadataParser
             $parameterClass = $parameter->getClass();
 
             if ($parameterClass !== null) {
-                $testProperties[] = [
-                    'type' => 'dependency',
+                $classProperties[] = [
+                    'type' => self::DEPENDENCY,
                     'propertyType' => $parameterClass->getShortName(),
                     'propertyName' => $parameter->name,
                 ];
             } else {
-                $testProperties[] = [
-                    'type' => 'normal',
+                $classProperties[] = [
+                    'type' => self::NORMAL,
                     'propertyType' => (string) $parameter->getType(),
                     'propertyName' => $parameter->name,
                 ];
             }
         }
 
-        $testProperties[] = [
-            'type' => 'normal',
+        $classProperties[] = [
+            'type' => self::NORMAL,
             'propertyType' => $this->classShortName,
             'propertyName' => $this->classCamelCaseName,
         ];
 
-        return $testProperties;
+        return $classProperties;
     }
 
     /**
      * @return mixed[]
      */
-    private function generateSetUpDependencies() : array
+    private function generateSetUpLines() : array
     {
         $classShortName     = $this->reflectionClass->getShortName();
         $classCamelCaseName = $this->inflector->camelize($classShortName);
 
-        $setUpDependencies = [];
+        $setUpLines = [];
 
         $parameters = $this->getConstructorParameters();
 
-        if (count($parameters) !== 0) {
-            foreach ($parameters as $parameter) {
-                $parameterClass = $parameter->getClass();
+        foreach ($parameters as $parameter) {
+            $parameterClass = $parameter->getClass();
 
-                if ($parameterClass !== null) {
-                    $setUpDependencies[] = [
-                        'type' => 'dependency',
-                        'propertyName' => $parameter->name,
-                        'propertyType' => $parameterClass->getShortName(),
-                    ];
-                } else {
-                    $typeRandomValue = $this->generateTypeRandomValue((string) $parameter->getType());
+            if ($parameterClass !== null) {
+                $setUpLines[] = [
+                    'type' => self::DEPENDENCY,
+                    'propertyName' => $parameter->name,
+                    'propertyType' => $parameterClass->getShortName(),
+                ];
+            } else {
+                $typeRandomValue = $this->generateTypeRandomValue((string) $parameter->getType());
 
-                    $setUpDependencies[] = [
-                        'type' => 'normal',
-                        'propertyName' => $parameter->name,
-                        'propertyValue' => var_export($typeRandomValue, true),
-                    ];
-                }
+                $setUpLines[] = [
+                    'type' => self::NORMAL,
+                    'propertyName' => $parameter->name,
+                    'propertyValue' => $typeRandomValue,
+                ];
             }
-
-            $setUpDependencies[] = [
-                'type' => 'sut',
-                'propertyName' => $classCamelCaseName,
-                'propertyType' => $classShortName,
-                'parameters' => array_map(static function (ReflectionParameter $parameter) {
-                    return $parameter->name;
-                }, $parameters),
-            ];
-        } else {
-            $setUpDependencies[] = [
-                'type' => 'sut',
-                'propertyName' => $classCamelCaseName,
-                'propertyType' => $classShortName,
-                'parameters' => [],
-            ];
         }
 
-        return $setUpDependencies;
+        $setUpLines[] = [
+            'type' => self::SUT,
+            'propertyName' => $classCamelCaseName,
+            'propertyType' => $classShortName,
+            'arguments' => array_map(static function (ReflectionParameter $parameter) {
+                return $parameter->name;
+            }, $parameters),
+        ];
+
+        return $setUpLines;
     }
 
     /**
@@ -215,8 +224,8 @@ class TestClassMetadataParser
             }
 
             $testMethods[] = [
-                'methodName' => $method->name,
-                'body' => $this->generateTestMethodBody($method),
+                'methodName' => sprintf('test%s', ucfirst($method->name)),
+                'lines' => $this->generateTestMethodLines($method),
             ];
         }
 
@@ -226,48 +235,47 @@ class TestClassMetadataParser
     /**
      * @return mixed[]
      */
-    private function generateTestMethodBody(ReflectionMethod $method) : array
+    private function generateTestMethodLines(ReflectionMethod $method) : array
     {
         $parameters = $method->getParameters();
 
-        $testMethodBody = [];
+        $testMethodLines = [];
 
-        if (count($parameters) !== 0) {
-            foreach ($parameters as $parameter) {
-                $parameterClass = $parameter->getClass();
+        foreach ($parameters as $parameter) {
+            $parameterClass = $parameter->getClass();
 
-                if ($parameterClass !== null) {
-                    $testMethodBody[] = [
-                        'type' => 'dependency',
-                        'parameterName' => $parameter->name,
-                        'parameterType' => $parameterClass->getShortName(),
-                    ];
-                } else {
-                    $testMethodBody[] = [
-                        'type' => 'normal',
-                        'parameterName' => $parameter->name,
-                    ];
-                }
+            if ($parameterClass !== null) {
+                $testMethodLines[] = [
+                    'type' => self::DEPENDENCY,
+                    'variableName' => $parameter->name,
+                    'variableType' => $parameterClass->getShortName(),
+                ];
+            } else {
+                $testMethodLines[] = [
+                    'type' => self::NORMAL,
+                    'variableName' => $parameter->name,
+                ];
             }
-
-            $testMethodBody[] = [
-                'type' => 'sut',
-                'parameterName' => $this->classCamelCaseName,
-                'methodName' => $method->name,
-                'parameters' => array_map(static function (ReflectionParameter $parameter) {
-                    return $parameter->name;
-                }, $parameters),
-            ];
-        } else {
-            $testMethodBody[] = [
-                'type' => 'sut',
-                'parameterName' => $this->classCamelCaseName,
-                'methodName' => $method->name,
-                'parameters' => [],
-            ];
         }
 
-        return $testMethodBody;
+        $returnType     = $method->getReturnType();
+        $returnTypeName = '';
+
+        if ($returnType !== null) {
+            $returnTypeName = $returnType->getName();
+        }
+
+        $testMethodLines[] = [
+            'type' => self::SUT,
+            'variableName' => $this->classCamelCaseName,
+            'methodName' => $method->name,
+            'methodReturnType' => $returnTypeName,
+            'arguments' => array_map(static function (ReflectionParameter $parameter) {
+                return $parameter->name;
+            }, $parameters),
+        ];
+
+        return $testMethodLines;
     }
 
     private function isMethodTestable(ReflectionMethod $method) : bool
@@ -285,14 +293,20 @@ class TestClassMetadataParser
     private function generateTypeRandomValue(string $type)
     {
         switch ($type) {
-            case 'string':
-                return '';
+            case 'array':
+                return [];
+
+            case 'bool':
+                return true;
 
             case 'float':
                 return 1.0;
 
             case 'int':
                 return 1;
+
+            case 'string':
+                return '';
         }
 
         return '';

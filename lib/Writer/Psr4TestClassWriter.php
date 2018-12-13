@@ -7,12 +7,9 @@ namespace JWage\PHPUnitTestGenerator\Writer;
 use JWage\PHPUnitTestGenerator\Configuration\Configuration;
 use JWage\PHPUnitTestGenerator\GeneratedTestClass;
 use RuntimeException;
+use Symfony\Component\Filesystem\Filesystem;
 use const DIRECTORY_SEPARATOR;
 use function dirname;
-use function file_exists;
-use function file_put_contents;
-use function is_dir;
-use function mkdir;
 use function sprintf;
 use function str_replace;
 
@@ -21,9 +18,13 @@ class Psr4TestClassWriter implements TestClassWriter
     /** @var Configuration */
     private $configuration;
 
-    public function __construct(Configuration $configuration)
+    /** @var Filesystem */
+    private $filesystem;
+
+    public function __construct(Configuration $configuration, ?Filesystem $filesystem = null)
     {
         $this->configuration = $configuration;
+        $this->filesystem    = $filesystem ?? new Filesystem();
     }
 
     public function write(GeneratedTestClass $generatedTestClass) : string
@@ -32,15 +33,15 @@ class Psr4TestClassWriter implements TestClassWriter
 
         $writeDirectory = dirname($writePath);
 
-        if (! is_dir($writeDirectory)) {
-            mkdir($writeDirectory, 0777, true);
+        if (! $this->filesystem->exists($writeDirectory)) {
+            $this->filesystem->mkdir($writeDirectory, 0777);
         }
 
-        if (file_exists($writePath)) {
+        if ($this->filesystem->exists($writePath)) {
             throw new RuntimeException(sprintf('Test class already exists at %s', $writePath));
         }
 
-        file_put_contents(
+        $this->filesystem->dumpFile(
             $writePath,
             $generatedTestClass->getCode()
         );
