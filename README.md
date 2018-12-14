@@ -55,7 +55,7 @@ namespace App\Services;
 
 class Dependency
 {
-    public function getSomething()
+    public function getSomething() : null
     {
         return null;
     }
@@ -99,12 +99,12 @@ class MyServiceTest extends TestCase
 
     public function testGetDependency() : void
     {
-        $this->myService->getDependency();
+        self::assertInstanceOf(Dependency::class, $this->myService->getDependency());
     }
 
     public function testGetValue() : void
     {
-        $this->myService->getValue();
+        self::assertSame(1, $this->myService->getValue());
     }
 
     protected function setUp() : void

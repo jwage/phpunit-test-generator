@@ -12,8 +12,9 @@
     "require": {
         "php": "^7.1",
         "doctrine/inflector": "2.0.x-dev",
-        "twig/twig": "^2.5",
-        "symfony/console": "^4.1"
+        "nikic/php-parser": "^4.1",
+        "symfony/console": "^4.1",
+        "symfony/filesystem": "^4.2"
     },
     "require-dev": {
         "doctrine/coding-standard": "^5.0",
