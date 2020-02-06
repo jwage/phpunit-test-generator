@@ -103,9 +103,9 @@ class TestClassMetadataParser
                 if (! class_exists($returnTypeName)) {
                     continue;
                 }
+                
+                $useStatements[] = $returnType;
             }
-
-            $useStatements[] = $returnType;
         }
 
         $useStatements[] = MockObject::class;
