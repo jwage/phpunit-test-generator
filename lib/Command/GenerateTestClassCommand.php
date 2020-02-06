@@ -75,7 +75,7 @@ class GenerateTestClassCommand extends Command
 
             $afterClasses = get_declared_classes();
 
-            $newClasses = array_values(array_diff($afterClasses, $beforeClasses));
+            $newClasses = array_reverse(array_values(array_diff($afterClasses, $beforeClasses)));
 
             if (! isset($newClasses[0])) {
                 throw new InvalidArgumentException(sprintf('Could not find class in file %s', $filePath));
